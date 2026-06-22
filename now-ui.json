@@ -1,0 +1,696 @@
+{
+  "components": {
+    "x-1295779-heatmap-chart-uic": {
+      "innerComponents": [],
+      "uiBuilder": {
+        "associatedTypes": [
+          "global.core",
+          "global.landing-page"
+        ],
+        "label": "D3 Heatmap",
+        "tileIcon": "./tile-icon/generic-tile-icon.svg",
+        "description": "A configurable matrix heatmap rendered with D3.js. A grid of cells indexed by an X category (columns) and a Y category (rows), each colored by a value via a sequential/diverging/quantized color scale. Color legend, optional auto-contrast cell value labels, sorting, square cells. Restyle it entirely from the property panel and hook into click/hover events.",
+        "category": "primitives"
+      },
+      "properties": [
+        {
+          "name": "data",
+          "label": "Data · Cells",
+          "description": "Flat array of cells, each: { x, y, value }. 'x' = column category, 'y' = row category, 'value' = the numeric value that drives the cell color. Missing (x,y) combinations render as blank cells. You may also pass an explicit-order object { xCategories: [...], yCategories: [...], cells: [...] } to fix column/row ordering. Bind to a data resource or leave empty to show built-in sample data.",
+          "fieldType": "json"
+        },
+        {
+          "name": "chartTitle",
+          "label": "Header & border · Title",
+          "description": "Title rendered above the chart. Leave blank to hide.",
+          "fieldType": "string",
+          "defaultValue": "Activity by Day & Hour"
+        },
+        {
+          "name": "titleFontSize",
+          "label": "Header & border · Title font size",
+          "description": "Font size of the chart title, in pixels.",
+          "fieldType": "number",
+          "defaultValue": 18
+        },
+        {
+          "name": "titleColor",
+          "label": "Header & border · Title color",
+          "description": "Text color of the chart title.",
+          "fieldType": "string",
+          "defaultValue": "#374151"
+        },
+        {
+          "name": "componentWidth",
+          "label": "Header & border · Width",
+          "description": "Outer width of the whole widget. CSS length, e.g. \"50%\", \"640px\". A bare number is treated as pixels.",
+          "fieldType": "string",
+          "defaultValue": "50%"
+        },
+        {
+          "name": "componentPadding",
+          "label": "Header & border · Padding",
+          "description": "Padding around the whole widget. CSS length, e.g. \"12px\", \"1rem\". A bare number is treated as pixels.",
+          "fieldType": "string",
+          "defaultValue": "12px"
+        },
+        {
+          "name": "backgroundColor",
+          "label": "Header & border · Background color",
+          "description": "Chart background. CSS color or \"transparent\".",
+          "fieldType": "string",
+          "defaultValue": "transparent"
+        },
+        {
+          "name": "borderColor",
+          "label": "Header & border · Border color",
+          "description": "Border color of the widget. Leave blank for no border.",
+          "fieldType": "string",
+          "defaultValue": ""
+        },
+        {
+          "name": "borderWidth",
+          "label": "Header & border · Border width",
+          "description": "Border thickness in pixels. 0 = no border.",
+          "fieldType": "number",
+          "defaultValue": 0
+        },
+        {
+          "name": "borderRadius",
+          "label": "Header & border · Border radius",
+          "description": "Rounded corners of the widget, in pixels.",
+          "fieldType": "number",
+          "defaultValue": 0
+        },
+        {
+          "name": "chartHeight",
+          "label": "Display · Chart height (px)",
+          "description": "Height of the chart in pixels. Ignored when Cell aspect is Square (the grid then sizes from square cells).",
+          "fieldType": "number",
+          "defaultValue": 360
+        },
+        {
+          "name": "fontFamily",
+          "label": "Display · Base font family",
+          "description": "CSS font-family for chart text that doesn't have its own family set. Blank = inherit from the page.",
+          "fieldType": "string",
+          "defaultValue": ""
+        },
+        {
+          "name": "dropShadow",
+          "label": "Display · Drop shadow",
+          "description": "Apply a soft drop shadow to the cells.",
+          "fieldType": "boolean",
+          "defaultValue": false
+        },
+        {
+          "name": "shadowColor",
+          "label": "Display · Shadow color (when drop shadow on)",
+          "description": "Color of the cell drop shadow (supports rgba).",
+          "fieldType": "string",
+          "defaultValue": "rgba(0,0,0,0.25)"
+        },
+        {
+          "name": "shadowBlur",
+          "label": "Display · Shadow blur (when drop shadow on)",
+          "description": "Blur radius of the drop shadow, in pixels.",
+          "fieldType": "number",
+          "defaultValue": 4
+        },
+        {
+          "name": "hoverHighlight",
+          "label": "Display · Hover highlight",
+          "description": "Emphasize a cell on mouse-over (outline the hovered cell).",
+          "fieldType": "boolean",
+          "defaultValue": true
+        },
+        {
+          "name": "animate",
+          "label": "Display · Animate",
+          "description": "Animate cells fading/growing in on first render and on data change.",
+          "fieldType": "boolean",
+          "defaultValue": true
+        },
+        {
+          "name": "animationDuration",
+          "label": "Display · Animation duration (ms)",
+          "description": "Duration of the fade/grow-in animation in milliseconds.",
+          "fieldType": "number",
+          "defaultValue": 800
+        },
+        {
+          "name": "animationEasing",
+          "label": "Display · Animation easing",
+          "description": "Easing curve for the fade/grow-in animation.",
+          "fieldType": "choice",
+          "defaultValue": "cubicOut",
+          "typeMetadata": {
+            "variant": "dropdown",
+            "choices": [
+              {
+                "label": "Linear",
+                "value": "linear"
+              },
+              {
+                "label": "Cubic out",
+                "value": "cubicOut"
+              },
+              {
+                "label": "Cubic in-out",
+                "value": "cubicInOut"
+              },
+              {
+                "label": "Quad out",
+                "value": "quadOut"
+              },
+              {
+                "label": "Exp out",
+                "value": "expOut"
+              },
+              {
+                "label": "Back out",
+                "value": "backOut"
+              },
+              {
+                "label": "Bounce out",
+                "value": "bounceOut"
+              },
+              {
+                "label": "Elastic out",
+                "value": "elasticOut"
+              }
+            ]
+          }
+        },
+        {
+          "name": "animationStagger",
+          "label": "Display · Animation stagger (ms)",
+          "description": "Delay between cells for a cascade fade-in, applied across the grid diagonally (0 = all cells animate together).",
+          "fieldType": "number",
+          "defaultValue": 6
+        },
+        {
+          "name": "cellPadding",
+          "label": "Cells · Cell gap (px)",
+          "description": "Gap between adjacent cells in pixels (0 = touching cells).",
+          "fieldType": "number",
+          "defaultValue": 2
+        },
+        {
+          "name": "cellCornerRadius",
+          "label": "Cells · Corner radius (px)",
+          "description": "Rounded corners of each cell, in pixels. 0 = square corners.",
+          "fieldType": "number",
+          "defaultValue": 2
+        },
+        {
+          "name": "cellStroke",
+          "label": "Cells · Border color",
+          "description": "Stroke color around each cell. Blank = no cell border.",
+          "fieldType": "string",
+          "defaultValue": ""
+        },
+        {
+          "name": "cellStrokeWidth",
+          "label": "Cells · Border width (px)",
+          "description": "Stroke width around each cell, in pixels. 0 = no border.",
+          "fieldType": "number",
+          "defaultValue": 0
+        },
+        {
+          "name": "cellAspect",
+          "label": "Cells · Aspect",
+          "description": "Fit = cells stretch to fill the available width/height. Square = cells are forced square (the chart height is derived from the square cell size, ignoring Chart height).",
+          "fieldType": "choice",
+          "defaultValue": "fit",
+          "typeMetadata": {
+            "variant": "dropdown",
+            "choices": [
+              {
+                "label": "Fit (stretch to size)",
+                "value": "fit"
+              },
+              {
+                "label": "Square cells",
+                "value": "square"
+              }
+            ]
+          }
+        },
+        {
+          "name": "nullCellColor",
+          "label": "Cells · Missing-cell color",
+          "description": "Fill color for (x,y) combinations with no data (blank cells). Use \"transparent\" to leave a gap.",
+          "fieldType": "string",
+          "defaultValue": "#f3f4f6"
+        },
+        {
+          "name": "colorScaleType",
+          "label": "Colors · Scale type",
+          "description": "Sequential = a continuous low->high ramp. Diverging = a two-sided ramp around a midpoint (e.g. for above/below a target). Quantize = discrete color buckets.",
+          "fieldType": "choice",
+          "defaultValue": "sequential",
+          "typeMetadata": {
+            "variant": "dropdown",
+            "choices": [
+              {
+                "label": "Sequential",
+                "value": "sequential"
+              },
+              {
+                "label": "Diverging",
+                "value": "diverging"
+              },
+              {
+                "label": "Quantize (discrete buckets)",
+                "value": "quantize"
+              }
+            ]
+          }
+        },
+        {
+          "name": "colorScheme",
+          "label": "Colors · Color scheme",
+          "description": "The D3 color interpolator that maps value -> color. Sequential schemes (Blues, Greens, Oranges, Reds, Purples, Viridis, Inferno, Magma, Cividis, YlOrRd, YlGnBu) suit one-directional data; diverging schemes (RdYlGn, RdBu, Spectral) suit a midpoint. Any scheme works with any Scale type.",
+          "fieldType": "choice",
+          "defaultValue": "blues",
+          "typeMetadata": {
+            "variant": "dropdown",
+            "choices": [
+              {
+                "label": "Blues",
+                "value": "blues"
+              },
+              {
+                "label": "Greens",
+                "value": "greens"
+              },
+              {
+                "label": "Oranges",
+                "value": "oranges"
+              },
+              {
+                "label": "Reds",
+                "value": "reds"
+              },
+              {
+                "label": "Purples",
+                "value": "purples"
+              },
+              {
+                "label": "Viridis",
+                "value": "viridis"
+              },
+              {
+                "label": "Inferno",
+                "value": "inferno"
+              },
+              {
+                "label": "Magma",
+                "value": "magma"
+              },
+              {
+                "label": "Cividis",
+                "value": "cividis"
+              },
+              {
+                "label": "YlOrRd",
+                "value": "YlOrRd"
+              },
+              {
+                "label": "YlGnBu",
+                "value": "YlGnBu"
+              },
+              {
+                "label": "RdYlGn (diverging)",
+                "value": "RdYlGn"
+              },
+              {
+                "label": "RdBu (diverging)",
+                "value": "RdBu"
+              },
+              {
+                "label": "Spectral (diverging)",
+                "value": "spectral"
+              }
+            ]
+          }
+        },
+        {
+          "name": "reverseColors",
+          "label": "Colors · Reverse scheme",
+          "description": "Flip the color ramp so high values take the light end and low values the dark end (or vice-versa).",
+          "fieldType": "boolean",
+          "defaultValue": false
+        },
+        {
+          "name": "colorMin",
+          "label": "Colors · Value domain minimum",
+          "description": "Fix the value that maps to the low end of the color scale. Blank = automatic (the data minimum).",
+          "fieldType": "number"
+        },
+        {
+          "name": "colorMax",
+          "label": "Colors · Value domain maximum",
+          "description": "Fix the value that maps to the high end of the color scale. Blank = automatic (the data maximum).",
+          "fieldType": "number"
+        },
+        {
+          "name": "divergingMidpoint",
+          "label": "Colors · Diverging midpoint",
+          "description": "Only for Diverging scale type: the value placed at the center of the color ramp. Blank = automatic (the mean of the data).",
+          "fieldType": "number"
+        },
+        {
+          "name": "quantizeSteps",
+          "label": "Colors · Quantize steps",
+          "description": "Only for Quantize scale type: the number of discrete color buckets the value range is split into.",
+          "fieldType": "number",
+          "defaultValue": 5
+        },
+        {
+          "name": "sortX",
+          "label": "X-axis · Column sort",
+          "description": "Order the columns: None (first-seen / explicit order), Ascending (by label), Descending (by label), or By value (by each column's total value, descending).",
+          "fieldType": "choice",
+          "defaultValue": "none",
+          "typeMetadata": {
+            "variant": "dropdown",
+            "choices": [
+              {
+                "label": "None (data order)",
+                "value": "none"
+              },
+              {
+                "label": "Ascending (label)",
+                "value": "asc"
+              },
+              {
+                "label": "Descending (label)",
+                "value": "desc"
+              },
+              {
+                "label": "By value (total)",
+                "value": "value"
+              }
+            ]
+          }
+        },
+        {
+          "name": "xAxisLabel",
+          "label": "X-axis · Title",
+          "description": "Caption beneath the x-axis. Leave blank to hide.",
+          "fieldType": "string",
+          "defaultValue": ""
+        },
+        {
+          "name": "xAxisPosition",
+          "label": "X-axis · Position",
+          "description": "Where to draw the column labels: along the Bottom or the Top of the grid.",
+          "fieldType": "choice",
+          "defaultValue": "bottom",
+          "typeMetadata": {
+            "variant": "dropdown",
+            "choices": [
+              {
+                "label": "Bottom",
+                "value": "bottom"
+              },
+              {
+                "label": "Top",
+                "value": "top"
+              }
+            ]
+          }
+        },
+        {
+          "name": "xTickRotation",
+          "label": "X-axis · Tick label rotation",
+          "description": "Rotate x-axis (column) tick labels by this many degrees (e.g. -45 or -90) so long or dense labels don't overlap. 0 = horizontal. The chart auto-reserves space for tilted labels.",
+          "fieldType": "number",
+          "defaultValue": 0
+        },
+        {
+          "name": "sortY",
+          "label": "Y-axis · Row sort",
+          "description": "Order the rows: None (first-seen / explicit order), Ascending (by label), Descending (by label), or By value (by each row's total value, descending).",
+          "fieldType": "choice",
+          "defaultValue": "none",
+          "typeMetadata": {
+            "variant": "dropdown",
+            "choices": [
+              {
+                "label": "None (data order)",
+                "value": "none"
+              },
+              {
+                "label": "Ascending (label)",
+                "value": "asc"
+              },
+              {
+                "label": "Descending (label)",
+                "value": "desc"
+              },
+              {
+                "label": "By value (total)",
+                "value": "value"
+              }
+            ]
+          }
+        },
+        {
+          "name": "yAxisLabel",
+          "label": "Y-axis · Title",
+          "description": "Rotated caption beside the y-axis. Leave blank to hide.",
+          "fieldType": "string",
+          "defaultValue": ""
+        },
+        {
+          "name": "axisColor",
+          "label": "Axes · Line color",
+          "description": "Color of the x and y axis lines and tick marks.",
+          "fieldType": "string",
+          "defaultValue": "#6b7280"
+        },
+        {
+          "name": "axisTextColor",
+          "label": "Axes · Text color",
+          "description": "Text color for the x/y axis tick (category) labels and the axis titles.",
+          "fieldType": "string",
+          "defaultValue": "#6b7280"
+        },
+        {
+          "name": "axisFontSize",
+          "label": "Axes · Font size",
+          "description": "Font size (px) for the x/y axis category labels and the axis titles.",
+          "fieldType": "number",
+          "defaultValue": 12
+        },
+        {
+          "name": "axisFontFamily",
+          "label": "Axes · Font family",
+          "description": "CSS font-family for the x/y axis category labels and axis titles. Blank = use the base font family.",
+          "fieldType": "string",
+          "defaultValue": ""
+        },
+        {
+          "name": "showColorLegend",
+          "label": "Color legend · Show legend",
+          "description": "Show a gradient color legend mapping colors back to values.",
+          "fieldType": "boolean",
+          "defaultValue": true
+        },
+        {
+          "name": "colorLegendPosition",
+          "label": "Color legend · Position",
+          "description": "Where to place the color legend: to the Right of the grid (vertical bar) or below it (horizontal bar).",
+          "fieldType": "choice",
+          "defaultValue": "right",
+          "typeMetadata": {
+            "variant": "dropdown",
+            "choices": [
+              {
+                "label": "Right (vertical)",
+                "value": "right"
+              },
+              {
+                "label": "Bottom (horizontal)",
+                "value": "bottom"
+              }
+            ]
+          }
+        },
+        {
+          "name": "colorLegendTitle",
+          "label": "Color legend · Title",
+          "description": "Optional caption above/beside the color legend. Leave blank to hide.",
+          "fieldType": "string",
+          "defaultValue": ""
+        },
+        {
+          "name": "colorLegendFormat",
+          "label": "Color legend · Tick format",
+          "description": "D3 number format specifier for the color legend tick labels (e.g. \".0f\", \",.0f\", \"$,.0f\", \".0%\"). Blank = default.",
+          "fieldType": "string",
+          "defaultValue": ""
+        },
+        {
+          "name": "showCellLabels",
+          "label": "Labels · Show cell values",
+          "description": "Draw the numeric value inside each cell.",
+          "fieldType": "boolean",
+          "defaultValue": false
+        },
+        {
+          "name": "cellLabelFormat",
+          "label": "Labels · Value format",
+          "description": "D3 number format specifier for the in-cell value labels (e.g. \".0f\", \",.0f\", \"$,.0f\", \".1%\", \".2s\"). Blank = default.",
+          "fieldType": "string",
+          "defaultValue": ""
+        },
+        {
+          "name": "cellLabelFontSize",
+          "label": "Labels · Font size",
+          "description": "Font size (px) for the in-cell value labels.",
+          "fieldType": "number",
+          "defaultValue": 11
+        },
+        {
+          "name": "cellLabelColor",
+          "label": "Labels · Color",
+          "description": "Text color for the in-cell value labels. Blank = automatic black/white contrast chosen per cell against its fill color.",
+          "fieldType": "string",
+          "defaultValue": ""
+        },
+        {
+          "name": "cellLabelMinSize",
+          "label": "Labels · Hide below cell size (px)",
+          "description": "Hide in-cell value labels when a cell is smaller than this many pixels (avoids cramped, unreadable labels in dense grids). 0 = always show.",
+          "fieldType": "number",
+          "defaultValue": 18
+        },
+        {
+          "name": "showTooltip",
+          "label": "Tooltip · Show tooltip",
+          "description": "Show a hover tooltip over each cell.",
+          "fieldType": "boolean",
+          "defaultValue": true
+        },
+        {
+          "name": "tooltipTemplate",
+          "label": "Tooltip · Template",
+          "description": "Tooltip content (light HTML allowed). Tokens: {x}, {y}, {value}, {formattedValue}, {rowIndex}, {colIndex}, {swatch} (a color dot matching the cell), {color}, and any custom key on the cell. Interpolated values are HTML-escaped.",
+          "fieldType": "string",
+          "defaultValue": "{swatch}<strong>{x} · {y}</strong><br/>{formattedValue}"
+        },
+        {
+          "name": "tooltipFollowCursor",
+          "label": "Tooltip · Follow cursor",
+          "description": "Tooltip follows the pointer. Turn off to anchor it near the hovered cell. Either way it's clamped within the chart bounds.",
+          "fieldType": "boolean",
+          "defaultValue": true
+        },
+        {
+          "name": "tooltipBackground",
+          "label": "Tooltip · Background color",
+          "description": "Tooltip background (CSS color, supports rgba).",
+          "fieldType": "string",
+          "defaultValue": "rgba(17,24,39,0.92)"
+        },
+        {
+          "name": "tooltipTextColor",
+          "label": "Tooltip · Text color",
+          "description": "Tooltip text color.",
+          "fieldType": "string",
+          "defaultValue": "#ffffff"
+        },
+        {
+          "name": "tooltipFontSize",
+          "label": "Tooltip · Font size",
+          "description": "Tooltip font size, in pixels.",
+          "fieldType": "number",
+          "defaultValue": 12
+        }
+      ],
+      "actions": [
+        {
+          "name": "CHART_CLICKED",
+          "label": "Chart clicked",
+          "description": "Fired when the user clicks anywhere on the chart (not on a specific cell).",
+          "payload": [
+            {
+              "name": "cellCount",
+              "label": "Number of cells",
+              "description": "How many populated cells are rendered."
+            },
+            {
+              "name": "rowCount",
+              "label": "Number of rows",
+              "description": "How many Y categories (rows) are rendered."
+            },
+            {
+              "name": "colCount",
+              "label": "Number of columns",
+              "description": "How many X categories (columns) are rendered."
+            }
+          ]
+        },
+        {
+          "name": "CELL_CLICKED",
+          "label": "Cell clicked",
+          "description": "Fired when the user clicks an individual cell. Use to drill into details for that (x,y).",
+          "payload": [
+            {
+              "name": "x",
+              "label": "Column (x)",
+              "description": "The X category of the clicked cell."
+            },
+            {
+              "name": "y",
+              "label": "Row (y)",
+              "description": "The Y category of the clicked cell."
+            },
+            {
+              "name": "value",
+              "label": "Value",
+              "description": "The numeric value of the cell."
+            },
+            {
+              "name": "rowIndex",
+              "label": "Row index",
+              "description": "Zero-based index of the row."
+            },
+            {
+              "name": "colIndex",
+              "label": "Column index",
+              "description": "Zero-based index of the column."
+            }
+          ]
+        },
+        {
+          "name": "CELL_HOVERED",
+          "label": "Cell hovered",
+          "description": "Fired when the user hovers a cell. Useful for syncing external tooltips or details panels.",
+          "payload": [
+            {
+              "name": "x",
+              "label": "Column (x)",
+              "description": "The X category of the hovered cell."
+            },
+            {
+              "name": "y",
+              "label": "Row (y)",
+              "description": "The Y category of the hovered cell."
+            },
+            {
+              "name": "value",
+              "label": "Value",
+              "description": "The numeric value of the cell."
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "scopeName": "x_1295779_heat_0"
+}

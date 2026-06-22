@@ -1,0 +1,54 @@
+[
+  {
+    "name": "table",
+    "label": "Table",
+    "description": "Table to query, e.g. 'incident'.",
+    "fieldType": "string",
+    "mandatory": true,
+    "defaultValue": "incident"
+  },
+  {
+    "name": "filter",
+    "label": "Filter (encoded query)",
+    "description": "Optional encoded query to scope the rows, e.g. 'active=true^priority<=2'.",
+    "fieldType": "string",
+    "defaultValue": ""
+  },
+  {
+    "name": "xField",
+    "label": "X field (columns)",
+    "description": "Field to group by for the columns (X category), e.g. 'priority'.",
+    "fieldType": "string",
+    "mandatory": true,
+    "defaultValue": "priority"
+  },
+  {
+    "name": "yField",
+    "label": "Y field (rows)",
+    "description": "Field to group by for the rows (Y category), e.g. 'state'.",
+    "fieldType": "string",
+    "mandatory": true,
+    "defaultValue": "state"
+  },
+  {
+    "name": "metric",
+    "label": "Metric",
+    "description": "Aggregation per (x,y) cell: count | sum | avg | min | max. Default 'count'.",
+    "fieldType": "string",
+    "defaultValue": "count"
+  },
+  {
+    "name": "valueField",
+    "label": "Value field",
+    "description": "Numeric field to aggregate (required when metric is not 'count'), e.g. 'reassignment_count'.",
+    "fieldType": "string",
+    "defaultValue": ""
+  },
+  {
+    "name": "useDisplayValue",
+    "label": "Use display values for labels",
+    "description": "Group/label the x and y categories by display value (readable) instead of raw value.",
+    "fieldType": "boolean",
+    "defaultValue": true
+  }
+]
