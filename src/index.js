@@ -1,1 +1,1 @@
-import './x-1295779-heatmap-chart-uic';
+import "./x-2114311-heatmap-chart-uic";

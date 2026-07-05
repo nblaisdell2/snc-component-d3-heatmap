@@ -1,12 +1,9 @@
 {
   "components": {
-    "x-1295779-heatmap-chart-uic": {
+    "x-2114311-heatmap-chart-uic": {
       "innerComponents": [],
       "uiBuilder": {
-        "associatedTypes": [
-          "global.core",
-          "global.landing-page"
-        ],
+        "associatedTypes": ["global.core", "global.landing-page"],
         "label": "D3 Heatmap",
         "tileIcon": "./tile-icon/generic-tile-icon.svg",
         "description": "A configurable matrix heatmap rendered with D3.js. A grid of cells indexed by an X category (columns) and a Y category (rows), each colored by a value via a sequential/diverging/quantized color scale. Color legend, optional auto-contrast cell value labels, sorting, square cells. Restyle it entirely from the property panel and hook into click/hover events.",
@@ -125,6 +122,20 @@
           "defaultValue": true
         },
         {
+          "name": "hoverColor",
+          "label": "Display · Hover color (when hover highlight on)",
+          "description": "Color a cell turns on hover. Blank = keep the cell's own color and just outline it.",
+          "fieldType": "string",
+          "defaultValue": ""
+        },
+        {
+          "name": "hoverDimOthers",
+          "label": "Display · Dim others on hover",
+          "description": "Fade the other cells when hovering one, so the hovered cell stands out.",
+          "fieldType": "boolean",
+          "defaultValue": false
+        },
+        {
           "name": "animate",
           "label": "Display · Animate",
           "description": "Animate cells fading/growing in on first render and on data change.",
@@ -238,8 +249,42 @@
           }
         },
         {
-          "name": "nullCellColor",
-          "label": "Cells · Missing-cell color",
+          "name": "colorMode",
+          "label": "Color scale · Color mode",
+          "description": "Where the gradient colors come from: a preset color scheme, or a custom gradient defined by your own start and end colors.",
+          "fieldType": "choice",
+          "defaultValue": "scheme",
+          "typeMetadata": {
+            "variant": "dropdown",
+            "choices": [
+              {
+                "label": "Preset scheme",
+                "value": "scheme"
+              },
+              {
+                "label": "Custom gradient",
+                "value": "custom"
+              }
+            ]
+          }
+        },
+        {
+          "name": "customColorStart",
+          "label": "Color scale · Custom start color",
+          "description": "Low-end color of the custom gradient. Applies when Color mode is 'Custom gradient'.",
+          "fieldType": "string",
+          "defaultValue": "#ebedf0"
+        },
+        {
+          "name": "customColorEnd",
+          "label": "Color scale · Custom end color",
+          "description": "High-end color of the custom gradient. Applies when Color mode is 'Custom gradient'.",
+          "fieldType": "string",
+          "defaultValue": "#216e39"
+        },
+        {
+          "name": "noDataColor",
+          "label": "Colors · No-data color",
           "description": "Fill color for (x,y) combinations with no data (blank cells). Use \"transparent\" to leave a gap.",
           "fieldType": "string",
           "defaultValue": "#f3f4f6"
@@ -332,6 +377,86 @@
               {
                 "label": "Spectral (diverging)",
                 "value": "spectral"
+              }
+            ]
+          }
+        },
+        {
+          "name": "valueColorScheme",
+          "label": "Colors · Sequential scheme (By value)",
+          "description": "Sequential color scheme used for the value scale. Blank inherits the Color scheme. Maps the smallest value to the lightest color and the largest to the darkest.",
+          "fieldType": "choice",
+          "defaultValue": "",
+          "typeMetadata": {
+            "variant": "dropdown",
+            "choices": [
+              {
+                "label": "Inherit (use Color scheme)",
+                "value": ""
+              },
+              {
+                "label": "Blues",
+                "value": "blues"
+              },
+              {
+                "label": "Greens",
+                "value": "greens"
+              },
+              {
+                "label": "Oranges",
+                "value": "oranges"
+              },
+              {
+                "label": "Purples",
+                "value": "purples"
+              },
+              {
+                "label": "Reds",
+                "value": "reds"
+              },
+              {
+                "label": "Greys",
+                "value": "greys"
+              },
+              {
+                "label": "Viridis",
+                "value": "viridis"
+              },
+              {
+                "label": "Magma",
+                "value": "magma"
+              },
+              {
+                "label": "Inferno",
+                "value": "inferno"
+              },
+              {
+                "label": "Plasma",
+                "value": "plasma"
+              },
+              {
+                "label": "Cividis",
+                "value": "cividis"
+              },
+              {
+                "label": "Turbo",
+                "value": "turbo"
+              },
+              {
+                "label": "Warm",
+                "value": "warm"
+              },
+              {
+                "label": "Cool",
+                "value": "cool"
+              },
+              {
+                "label": "YlGnBu",
+                "value": "ylGnBu"
+              },
+              {
+                "label": "YlOrRd",
+                "value": "ylOrRd"
               }
             ]
           }
@@ -535,6 +660,41 @@
           "defaultValue": ""
         },
         {
+          "name": "colorLegendTitlePosition",
+          "label": "Legend · Legend title position",
+          "description": "Where the optional legend title sits relative to the legend. Top/Bottom apply when the legend is on the bottom; Left/Right apply when it is on the right.",
+          "fieldType": "choice",
+          "defaultValue": "top",
+          "typeMetadata": {
+            "variant": "dropdown",
+            "choices": [
+              {
+                "label": "Top",
+                "value": "top"
+              },
+              {
+                "label": "Bottom",
+                "value": "bottom"
+              },
+              {
+                "label": "Left",
+                "value": "left"
+              },
+              {
+                "label": "Right",
+                "value": "right"
+              }
+            ]
+          }
+        },
+        {
+          "name": "colorLegendMargin",
+          "label": "Legend · Color legend margin (px)",
+          "description": "Gap (px) between the grid and the legend. Applies below the grid when the legend is on the bottom, and to the right of the grid when it is on the right.",
+          "fieldType": "number",
+          "defaultValue": 8
+        },
+        {
           "name": "showCellLabels",
           "label": "Labels · Show cell values",
           "description": "Draw the numeric value inside each cell.",
@@ -692,5 +852,5 @@
       ]
     }
   },
-  "scopeName": "x_1295779_heat_0"
+  "scopeName": "x_2114311_heat_0"
 }

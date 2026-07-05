@@ -2,7 +2,7 @@
  * D3MatrixData -- Script Include (global, accessible from all application scopes)
  * ---------------------------------------------------------------------------
  * Reusable transform that turns platform data into the JSON shape expected by
- * the x-1295779-heatmap-chart-uic component's "Data . Cells" property:
+ * the x-2114311-heatmap-chart-uic component's "Data . Cells" property:
  *
  *   [ { x: "<column>", y: "<row>", value: <number> }, ... ]
  *
@@ -23,7 +23,6 @@
  */
 var D3MatrixData = Class.create();
 D3MatrixData.prototype = {
-
 	initialize: function () {},
 
 	/**
@@ -44,10 +43,11 @@ D3MatrixData.prototype = {
 		if (!table || !xField || !yField) {
 			return [];
 		}
-		var metric = (this._str(cfg.metric) || 'count').toLowerCase();
+		var metric = (this._str(cfg.metric) || "count").toLowerCase();
 		var valueField = this._str(cfg.valueField);
-		var useDisplay = cfg.useDisplayValue !== false && cfg.useDisplayValue !== 'false';
-		if (metric !== 'count' && !valueField) {
+		var useDisplay =
+			cfg.useDisplayValue !== false && cfg.useDisplayValue !== "false";
+		if (metric !== "count" && !valueField) {
 			return []; // sum/avg/min/max need a numeric field
 		}
 
@@ -57,8 +57,8 @@ D3MatrixData.prototype = {
 		}
 		ga.groupBy(xField);
 		ga.groupBy(yField);
-		if (metric === 'count') {
-			ga.addAggregate('COUNT');
+		if (metric === "count") {
+			ga.addAggregate("COUNT");
 		} else {
 			ga.addAggregate(metric.toUpperCase(), valueField);
 		}
@@ -68,18 +68,22 @@ D3MatrixData.prototype = {
 
 		var rows = [];
 		while (ga.next()) {
-			var xLabel = useDisplay ? ga.getDisplayValue(xField) : ga.getValue(xField);
-			var yLabel = useDisplay ? ga.getDisplayValue(yField) : ga.getValue(yField);
+			var xLabel = useDisplay
+				? ga.getDisplayValue(xField)
+				: ga.getValue(xField);
+			var yLabel = useDisplay
+				? ga.getDisplayValue(yField)
+				: ga.getValue(yField);
 			var value;
-			if (metric === 'count') {
-				value = parseInt(ga.getAggregate('COUNT'), 10);
+			if (metric === "count") {
+				value = parseInt(ga.getAggregate("COUNT"), 10);
 			} else {
 				value = parseFloat(ga.getAggregate(metric.toUpperCase(), valueField));
 			}
 			rows.push({
 				x: this._blank(xLabel),
 				y: this._blank(yLabel),
-				value: isNaN(value) ? 0 : value
+				value: isNaN(value) ? 0 : value,
 			});
 		}
 		return this._buildCells(rows, cfg, null);
@@ -104,10 +108,14 @@ D3MatrixData.prototype = {
 			collected.push({
 				x: this._blank(this._readField(r, xField)),
 				y: this._blank(this._readField(r, yField)),
-				value: isNaN(value) ? 0 : value
+				value: isNaN(value) ? 0 : value,
 			});
 		}
-		return this._buildCells(collected, cfg, (this._str(cfg.metric) || 'sum').toLowerCase());
+		return this._buildCells(
+			collected,
+			cfg,
+			(this._str(cfg.metric) || "sum").toLowerCase(),
+		);
 	},
 
 	// ----- internals -------------------------------------------------------
@@ -122,40 +130,56 @@ D3MatrixData.prototype = {
 		var yOrder = [];
 		var xSeen = {};
 		var ySeen = {};
-		var bucket = {};   // "x y" -> value
-		var counts = {};   // "x y" -> count (for avg)
+		var bucket = {}; // "x y" -> value
+		var counts = {}; // "x y" -> count (for avg)
 
 		for (var i = 0; i < rows.length; i++) {
 			var row = rows[i];
-			if (!xSeen[row.x]) { xSeen[row.x] = true; xOrder.push(row.x); }
-			if (!ySeen[row.y]) { ySeen[row.y] = true; yOrder.push(row.y); }
-			var key = row.x + ' ' + row.y;
+			if (!xSeen[row.x]) {
+				xSeen[row.x] = true;
+				xOrder.push(row.x);
+			}
+			if (!ySeen[row.y]) {
+				ySeen[row.y] = true;
+				yOrder.push(row.y);
+			}
+			var key = row.x + " " + row.y;
 			if (bucket[key] === undefined) {
 				bucket[key] = row.value;
 				counts[key] = 1;
 			} else {
-				var m = dupMetric || 'sum';
-				if (m === 'min') { bucket[key] = Math.min(bucket[key], row.value); }
-				else if (m === 'max') { bucket[key] = Math.max(bucket[key], row.value); }
-				else { bucket[key] += row.value; }
+				var m = dupMetric || "sum";
+				if (m === "min") {
+					bucket[key] = Math.min(bucket[key], row.value);
+				} else if (m === "max") {
+					bucket[key] = Math.max(bucket[key], row.value);
+				} else {
+					bucket[key] += row.value;
+				}
 				counts[key]++;
 			}
 		}
-		if (dupMetric === 'avg') {
+		if (dupMetric === "avg") {
 			for (var k in bucket) {
-				if (bucket.hasOwnProperty(k)) { bucket[k] = bucket[k] / counts[k]; }
+				if (bucket.hasOwnProperty(k)) {
+					bucket[k] = bucket[k] / counts[k];
+				}
 			}
 		}
 
-		this._sortCategories(xOrder, 'x', bucket, this._str(cfg.sortX));
-		this._sortCategories(yOrder, 'y', bucket, this._str(cfg.sortY));
+		this._sortCategories(xOrder, "x", bucket, this._str(cfg.sortX));
+		this._sortCategories(yOrder, "y", bucket, this._str(cfg.sortY));
 
 		var out = [];
 		for (var yi = 0; yi < yOrder.length; yi++) {
 			for (var xi = 0; xi < xOrder.length; xi++) {
-				var bk = xOrder[xi] + ' ' + yOrder[yi];
+				var bk = xOrder[xi] + " " + yOrder[yi];
 				if (bucket[bk] !== undefined) {
-					out.push({ x: String(xOrder[xi]), y: String(yOrder[yi]), value: bucket[bk] });
+					out.push({
+						x: String(xOrder[xi]),
+						y: String(yOrder[yi]),
+						value: bucket[bk],
+					});
 				}
 			}
 		}
@@ -167,43 +191,67 @@ D3MatrixData.prototype = {
 	 * 'value' ranks by the category's total value across the other axis (desc).
 	 */
 	_sortCategories: function (cats, axis, bucket, mode) {
-		mode = (mode || '').toLowerCase();
-		if (!mode || mode === 'none') { return; }
-		if (mode === 'value') {
+		mode = (mode || "").toLowerCase();
+		if (!mode || mode === "none") {
+			return;
+		}
+		if (mode === "value") {
 			var totals = {};
-			for (var c = 0; c < cats.length; c++) { totals[cats[c]] = 0; }
-			for (var key in bucket) {
-				if (!bucket.hasOwnProperty(key)) { continue; }
-				var parts = key.split(' ');
-				var cat = (axis === 'x') ? parts[0] : parts[1];
-				if (totals[cat] !== undefined) { totals[cat] += bucket[key]; }
+			for (var c = 0; c < cats.length; c++) {
+				totals[cats[c]] = 0;
 			}
-			cats.sort(function (a, b) { return totals[b] - totals[a]; });
+			for (var key in bucket) {
+				if (!bucket.hasOwnProperty(key)) {
+					continue;
+				}
+				var parts = key.split(" ");
+				var cat = axis === "x" ? parts[0] : parts[1];
+				if (totals[cat] !== undefined) {
+					totals[cat] += bucket[key];
+				}
+			}
+			cats.sort(function (a, b) {
+				return totals[b] - totals[a];
+			});
 		} else {
-			cats.sort(function (a, b) { return a < b ? -1 : (a > b ? 1 : 0); });
-			if (mode === 'desc') { cats.reverse(); }
+			cats.sort(function (a, b) {
+				return a < b ? -1 : a > b ? 1 : 0;
+			});
+			if (mode === "desc") {
+				cats.reverse();
+			}
 		}
 	},
 
 	_readField: function (obj, field) {
-		if (!field) { return ''; }
-		var v = obj[field];
-		if (v && typeof v === 'object') {
-			if (typeof v.getDisplayValue === 'function') { return v.getDisplayValue(); }
-			if (v.displayValue !== undefined) { return v.displayValue; }
-			if (v.value !== undefined) { return v.value; }
+		if (!field) {
+			return "";
 		}
-		return (v === undefined || v === null) ? '' : v;
+		var v = obj[field];
+		if (v && typeof v === "object") {
+			if (typeof v.getDisplayValue === "function") {
+				return v.getDisplayValue();
+			}
+			if (v.displayValue !== undefined) {
+				return v.displayValue;
+			}
+			if (v.value !== undefined) {
+				return v.value;
+			}
+		}
+		return v === undefined || v === null ? "" : v;
 	},
 
 	_str: function (v) {
-		return (v === undefined || v === null) ? '' : ('' + v).replace(/^\s+|\s+$/g, '');
+		return v === undefined || v === null
+			? ""
+			: ("" + v).replace(/^\s+|\s+$/g, "");
 	},
 
 	_blank: function (v) {
-		var s = (v === undefined || v === null) ? '' : ('' + v);
-		return s === '' ? '(empty)' : s;
+		var s = v === undefined || v === null ? "" : "" + v;
+		return s === "" ? "(empty)" : s;
 	},
 
-	type: 'D3MatrixData'
+	type: "D3MatrixData",
 };

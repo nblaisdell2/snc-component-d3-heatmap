@@ -9,8 +9,8 @@ configurable matrix **heatmap** with D3 v7. It is a sibling of the **D3 Line
 Chart** / **D3 Column Chart** components and mirrors their architecture and
 conventions -- but its **data shape is different** (see Data contract below).
 
-- Component tag: `x-1295779-heatmap-chart-uic`  .  Scope: `x_1295779_heat_0` (scopeName must be <= 18 chars)
-- Vendor prefix `x_1295779` is shared with the line/column charts.
+- Component tag: `x-2114311-heatmap-chart-uic` . Scope: `x_2114311_heat_0` (scopeName must be <= 18 chars)
+- Vendor prefix `x_2114311` is shared with the line/column charts.
 - CSS class prefix: `hc` (e.g. `.hc-root`, `.hc-svg`, `.hc-tooltip`, `.hc-cell`).
 
 ## Architecture (important conventions)
@@ -18,7 +18,7 @@ conventions -- but its **data shape is different** (see Data contract below).
 - **Seismic + D3 split.** The snabbdom `view` renders only a single stable
   `<div class="hc-root">`. D3 owns the SVG imperatively.
   `drawChart(container, props, dispatch)` in
-  `src/x-1295779-heatmap-chart-uic/chart.js` fully re-renders on every property
+  `src/x-2114311-heatmap-chart-uic/chart.js` fully re-renders on every property
   change. Never mix snabbdom virtual DOM with D3 mutation on the same nodes.
 - **Lifecycle** (`index.js`): redraw on `COMPONENT_RENDERED` and
   `COMPONENT_PROPERTY_CHANGED`; a `ResizeObserver` (wired in
@@ -26,9 +26,9 @@ conventions -- but its **data shape is different** (see Data contract below).
   the fade-in isn't snapped to its end state. State is stashed on
   `host._hcLast` / `host._hcWidth` / `host._hcResizeObserver`.
 - **D3 imports must be NAMED submodule imports** (`import { select } from
-  'd3-selection'`, `import { scaleBand, scaleSequential, scaleDiverging,
-  scaleQuantize } from 'd3-scale'`, `import { interpolateBlues, ... } from
-  'd3-scale-chromatic'`), not `import * as d3`. The ServiceNow prod build
+'d3-selection'`, `import { scaleBand, scaleSequential, scaleDiverging,
+scaleQuantize } from 'd3-scale'`, `import { interpolateBlues, ... } from
+'d3-scale-chromatic'`), not `import * as d3`. The ServiceNow prod build
   tree-shakes a passed-around namespace and would strip methods. Only the `d3`
   meta-package is a dependency; submodules resolve through it.
 - **No `d3-transition`.** The fade/grow-in animation grows each cell from its
@@ -41,17 +41,17 @@ conventions -- but its **data shape is different** (see Data contract below).
 
 ## Files
 
-- `src/x-1295779-heatmap-chart-uic/index.js` -- `createCustomElement`: property
+- `src/x-2114311-heatmap-chart-uic/index.js` -- `createCustomElement`: property
   defaults + lifecycle. Note `hasData()` accepts both the flat-array and the
   explicit-order object form before falling back to `SAMPLE_DATA`.
-- `src/x-1295779-heatmap-chart-uic/chart.js` -- the D3 renderer (the bulk of the
+- `src/x-2114311-heatmap-chart-uic/chart.js` -- the D3 renderer (the bulk of the
   logic): `normalizeData` (auto-detects array vs object form), color scale build
   (sequential/diverging/quantize + reverse + fixed domain), band scales, cells
   with missing-cell blanks, auto-contrast labels, color legend (right/bottom),
   tooltip, events, and the rAF animation.
-- `src/x-1295779-heatmap-chart-uic/sampleData.js` -- `SAMPLE_DATA` (a flat cell
+- `src/x-2114311-heatmap-chart-uic/sampleData.js` -- `SAMPLE_DATA` (a flat cell
   array; a day x hour activity matrix).
-- `src/x-1295779-heatmap-chart-uic/styles.scss` -- host/container/tooltip styles.
+- `src/x-2114311-heatmap-chart-uic/styles.scss` -- host/container/tooltip styles.
 - `now-ui.json` -- UI Builder manifest: every property (section-prefixed labels) +
   the `CHART_CLICKED` / `CELL_CLICKED` / `CELL_HOVERED` actions. **Keep this in
   sync with the `properties` block in `index.js` and the prop reads in
@@ -82,13 +82,15 @@ snc ui-component develop --open          # local hot-reload harness (example/ele
 snc ui-component generate-update-set --offline
 snc ui-component deploy                   # push to the connected instance
 ```
+
 Requires the `snc` CLI + a configured profile. The CLI needs a real instance.
 
 ## How to verify changes without an instance
 
 ```bash
-node scripts/verify_chart.mjs --chart src/x-1295779-heatmap-chart-uic/chart.js
+node scripts/verify_chart.mjs --chart src/x-2114311-heatmap-chart-uic/chart.js
 ```
+
 Bundles `chart.js` with real d3 (esbuild) and runs `drawChart` in jsdom across a
 property matrix, asserting an `<svg>` with no exceptions. Server logic: load
 `server/D3MatrixData.js` with `Class = { create: () => function(){} }` stubbed

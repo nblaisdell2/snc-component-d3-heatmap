@@ -138,7 +138,7 @@ const SCENARIOS = [
   ['drop shadow', { dropShadow: true }],
   ['cell stroke', { cellStroke: '#333333', cellStrokeWidth: 1 }],
   ['no cell gap', { cellPadding: 0 }],
-  ['transparent null cells', { data: SPARSE, nullCellColor: 'transparent' }],
+  ['transparent no-data cells', { data: SPARSE, noDataColor: 'transparent' }],
   ['viridis scheme', { colorScheme: 'viridis' }],
   ['spectral diverging', { colorScaleType: 'diverging', colorScheme: 'spectral' }],
   ['axis titles', { xAxisLabel: 'Day', yAxisLabel: 'Hour' }],
@@ -146,7 +146,16 @@ const SCENARIOS = [
   ['tooltip off', { showTooltip: false }],
   ['tooltip anchored', { tooltipFollowCursor: false }],
   ['hover off', { hoverHighlight: false }],
-  ['null value cell (NaN)', { data: [{ x: 'A', y: 'r1', value: null }, { x: 'B', y: 'r1', value: 9 }] }]
+  ['null value cell (NaN)', { data: [{ x: 'A', y: 'r1', value: null }, { x: 'B', y: 'r1', value: 9 }] }],
+  ['custom gradient', { colorMode: 'custom', customColorStart: '#ebedf0', customColorEnd: '#216e39' }],
+  ['custom gradient reversed', { colorMode: 'custom', customColorStart: '#fee0d2', customColorEnd: '#a50f15', reverseColors: true }],
+  ['value color scheme', { valueColorScheme: 'plasma' }],
+  ['value color scheme quantize', { valueColorScheme: 'turbo', colorScaleType: 'quantize' }],
+  ['hover color', { hoverColor: '#ff0000' }],
+  ['hover dim others', { hoverDimOthers: true }],
+  ['legend margin', { showColorLegend: true, colorLegendMargin: 24 }],
+  ['legend title left', { showColorLegend: true, colorLegendPosition: 'right', colorLegendTitle: 'Count', colorLegendTitlePosition: 'left' }],
+  ['legend title bottom', { showColorLegend: true, colorLegendPosition: 'bottom', colorLegendTitle: 'Count', colorLegendTitlePosition: 'bottom' }]
 ];
 
 let pass = 0;

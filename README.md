@@ -10,12 +10,12 @@ legend, optional auto-contrast in-cell value labels, column/row sorting, square
 cells, and emits events you can hook (click the chart, click/hover a cell to
 drill in).
 
-- **Component tag:** `x-1295779-heatmap-chart-uic`
-- **Scope:** `x_1295779_heat_0`
+- **Component tag:** `x-2114311-heatmap-chart-uic`
+- **Scope:** `x_2114311_heat_0`
 - **Renderer:** Seismic (`@servicenow/ui-renderer-snabbdom`) + D3 v7
 
 > **Sibling of the D3 Line / Column charts.** This component shares their vendor
-> prefix (`x_1295779`) and architecture, but its **data shape is different** --
+> prefix (`x_2114311`) and architecture, but its **data shape is different** --
 > see [Data shape -- how it differs from the line/column chart](#data-shape----how-it-differs-from-the-linecolumn-chart).
 
 ---
@@ -23,7 +23,7 @@ drill in).
 ## Project layout
 
 ```
-src/x-1295779-heatmap-chart-uic/
+src/x-2114311-heatmap-chart-uic/
 |-- index.js        # createCustomElement: properties, view (stable container), lifecycle handlers
 |-- chart.js        # drawChart(container, props, dispatch) -- the D3 rendering
 |-- sampleData.js   # SAMPLE_DATA fallback so it renders on drop
@@ -68,7 +68,7 @@ snc ui-component deploy
 ```
 
 After deploying, open **UI Builder -> add component -> "D3 Heatmap"** (category
-*Primitives*). Bind `data` to a data resource (or leave it empty to show sample
+_Primitives_). Bind `data` to a data resource (or leave it empty to show sample
 data), tune the look-and-feel in the property panel, and wire the events under
 the component's **Events** section.
 
@@ -84,10 +84,22 @@ encodes series identity**:
 ```jsonc
 // line / column chart  --  series array (NOT what the heatmap uses)
 [
-  { "name": "Submitted", "color": "#2E93fA",
-    "data": [ { "label": "Jan", "value": 44 }, { "label": "Feb", "value": 55 } ] },
-  { "name": "Resolved",  "color": "#66DA26",
-    "data": [ { "label": "Jan", "value": 35 }, { "label": "Feb", "value": 41 } ] }
+  {
+    "name": "Submitted",
+    "color": "#2E93fA",
+    "data": [
+      { "label": "Jan", "value": 44 },
+      { "label": "Feb", "value": 55 },
+    ],
+  },
+  {
+    "name": "Resolved",
+    "color": "#66DA26",
+    "data": [
+      { "label": "Jan", "value": 35 },
+      { "label": "Feb", "value": 41 },
+    ],
+  },
 ]
 ```
 
@@ -99,22 +111,22 @@ bar height or a line position. There is no `series` and no per-series color:
 ```jsonc
 // heatmap  --  flat cells; value -> COLOR
 [
-  { "x": "Mon", "y": "9am",  "value": 12 },
-  { "x": "Tue", "y": "9am",  "value": 7  },
+  { "x": "Mon", "y": "9am", "value": 12 },
+  { "x": "Tue", "y": "9am", "value": 7 },
   { "x": "Mon", "y": "12pm", "value": 30 },
-  { "x": "Tue", "y": "12pm", "value": 27 }
+  { "x": "Tue", "y": "12pm", "value": 27 },
 ]
 ```
 
-| | Line / Column chart | Heatmap |
-|---|---|---|
-| Data property | `series` | `data` |
-| Top-level shape | array of series objects | flat array of cells |
-| Point/cell shape | `{ label, value }` | `{ x, y, value }` |
-| X axis | categorical (`label`) | categorical (`x` = column) |
-| Y axis | the value | categorical (`y` = row) |
-| What `value` drives | bar height / line position | **cell color** |
-| What color encodes | series identity | **the value** |
+|                     | Line / Column chart        | Heatmap                    |
+| ------------------- | -------------------------- | -------------------------- |
+| Data property       | `series`                   | `data`                     |
+| Top-level shape     | array of series objects    | flat array of cells        |
+| Point/cell shape    | `{ label, value }`         | `{ x, y, value }`          |
+| X axis              | categorical (`label`)      | categorical (`x` = column) |
+| Y axis              | the value                  | categorical (`y` = row)    |
+| What `value` drives | bar height / line position | **cell color**             |
+| What color encodes  | series identity            | **the value**              |
 
 Missing `(x, y)` combinations render as blank cells (the **Missing-cell color**).
 Column and row order is first-seen by default; the `Column sort` / `Row sort`
@@ -134,8 +146,8 @@ object with a `cells` array is treated as the explicit-order form.
   "cells": [
     { "x": "Q1", "y": "North", "value": 10 },
     { "x": "Q2", "y": "North", "value": 22 },
-    { "x": "Q3", "y": "East",  "value": 31 }
-  ]
+    { "x": "Q3", "y": "East", "value": 31 },
+  ],
 }
 ```
 
@@ -147,8 +159,8 @@ matrix).
 ## Feeding data from the platform (Data Transform)
 
 You rarely want to hand-write `data`. The recommended pattern turns real table
-data into the cells JSON **on the server** and binds it straight to *Data .
-Cells*. All transform logic lives in a reusable **Script Include**
+data into the cells JSON **on the server** and binds it straight to _Data .
+Cells_. All transform logic lives in a reusable **Script Include**
 (`server/D3MatrixData.js`); a **Transform data resource** calls it and exposes
 its output to UI Builder.
 
@@ -167,17 +179,17 @@ Table --GlideAggregate (group by xField AND yField)--> D3MatrixData --cells JSON
 
 Server-side source files live in **`server/`**:
 
-| File | What it is |
-|---|---|
-| `server/D3MatrixData.js` | Script Include -- `fromAggregate()`, `fromRows()` |
-| `server/d3-heatmap-data.transform.js` | Data resource script (delegates to `fromAggregate`) |
-| `server/d3-heatmap-data.properties.json` | Data resource inputs (bare JSON array) |
-| `server/sanity-test.background.js` | Verify the transforms; log the cell JSON |
-| `server/README.md` | Full setup incl. the execute-ACL steps |
+| File                                     | What it is                                          |
+| ---------------------------------------- | --------------------------------------------------- |
+| `server/D3MatrixData.js`                 | Script Include -- `fromAggregate()`, `fromRows()`   |
+| `server/d3-heatmap-data.transform.js`    | Data resource script (delegates to `fromAggregate`) |
+| `server/d3-heatmap-data.properties.json` | Data resource inputs (bare JSON array)              |
+| `server/sanity-test.background.js`       | Verify the transforms; log the cell JSON            |
+| `server/README.md`                       | Full setup incl. the execute-ACL steps              |
 
 ### Setup (one time)
 
-1. **Create the Script Include.** *System Definition -> Script Includes -> New*.
+1. **Create the Script Include.** _System Definition -> Script Includes -> New_.
    Name it `D3MatrixData`, **Accessible from = All application scopes**,
    **Client callable = false**, paste `server/D3MatrixData.js`. Save.
 2. **Create the Transform data resource.** UI Builder: **Add data resource ->
@@ -195,7 +207,7 @@ Server-side source files live in **`server/`**:
 
 ### Use it: aggregate a table
 
-- **Bind:** *Data . Cells* -> `@data.d3_heatmap_data.output` (your resource name).
+- **Bind:** _Data . Cells_ -> `@data.d3_heatmap_data.output` (your resource name).
 - **Example -- incidents by priority (columns) x state (rows), count:**
   `table` = `incident`, `xField` = `priority`, `yField` = `state`,
   `metric` = `count`, `useDisplayValue` = true. -> a priority x state grid where
@@ -213,14 +225,17 @@ Server-side source files live in **`server/`**:
 ```js
 function transform(input) {
   return new global.D3MatrixData().fromRows(input.rows, {
-    xField: 'day', yField: 'hour', valueField: 'hits', metric: 'sum'
+    xField: "day",
+    yField: "hour",
+    valueField: "hits",
+    metric: "sum",
   });
 }
 ```
 
 ### Verify
 
-Run `server/sanity-test.background.js` in *Scripts - Background* (Global scope)
+Run `server/sanity-test.background.js` in _Scripts - Background_ (Global scope)
 to log the cell JSON before wiring it in.
 
 > **Note:** these are **platform records** (Script Include / data resource /
@@ -240,114 +255,114 @@ mimic the native Data Visualization layout.
 
 ### Data
 
-| Property | `name` | Default | Description |
-|---|---|---|---|
-| Cells | `data` | built-in sample | Flat array of `{ x, y, value }` cells, or the explicit-order object form `{ xCategories, yCategories, cells }`. Bind to a data resource or edit inline. Empty -> sample. |
+| Property | `name` | Default         | Description                                                                                                                                                              |
+| -------- | ------ | --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Cells    | `data` | built-in sample | Flat array of `{ x, y, value }` cells, or the explicit-order object form `{ xCategories, yCategories, cells }`. Bind to a data resource or edit inline. Empty -> sample. |
 
 ### Header & border
 
-| Property | `name` | Default |
-|---|---|---|
-| Title | `chartTitle` | `Activity by Day & Hour` |
-| Title font size | `titleFontSize` | `18` |
-| Title color | `titleColor` | `#374151` |
-| Width | `componentWidth` | `50%` |
-| Padding | `componentPadding` | `12px` |
-| Background color | `backgroundColor` | `transparent` |
-| Border color | `borderColor` | blank |
-| Border width | `borderWidth` | `0` |
-| Border radius | `borderRadius` | `0` |
+| Property         | `name`             | Default                  |
+| ---------------- | ------------------ | ------------------------ |
+| Title            | `chartTitle`       | `Activity by Day & Hour` |
+| Title font size  | `titleFontSize`    | `18`                     |
+| Title color      | `titleColor`       | `#374151`                |
+| Width            | `componentWidth`   | `50%`                    |
+| Padding          | `componentPadding` | `12px`                   |
+| Background color | `backgroundColor`  | `transparent`            |
+| Border color     | `borderColor`      | blank                    |
+| Border width     | `borderWidth`      | `0`                      |
+| Border radius    | `borderRadius`     | `0`                      |
 
 ### Display
 
-| Property | `name` | Default | Description |
-|---|---|---|---|
-| Chart height (px) | `chartHeight` | `360` | Ignored when Cell aspect is Square. |
-| Base font family | `fontFamily` | blank | Inherit from the page when blank. |
-| Drop shadow | `dropShadow` | `false` | Soft drop shadow on the cells. |
-| Shadow color / blur | `shadowColor` / `shadowBlur` | `rgba(0,0,0,0.25)` / `4` | When drop shadow on. |
-| Hover highlight | `hoverHighlight` | `true` | Outline the hovered cell. |
-| Animate | `animate` | `true` | Fade/grow cells in on first render and data change. |
-| Animation duration (ms) | `animationDuration` | `800` | |
-| Animation easing | `animationEasing` | `Cubic out` | Linear, Cubic out, Cubic in-out, Quad out, Exp out, Back out, Bounce out, Elastic out. |
-| Animation stagger (ms) | `animationStagger` | `6` | Per-cell diagonal cascade delay. |
+| Property                | `name`                       | Default                  | Description                                                                            |
+| ----------------------- | ---------------------------- | ------------------------ | -------------------------------------------------------------------------------------- |
+| Chart height (px)       | `chartHeight`                | `360`                    | Ignored when Cell aspect is Square.                                                    |
+| Base font family        | `fontFamily`                 | blank                    | Inherit from the page when blank.                                                      |
+| Drop shadow             | `dropShadow`                 | `false`                  | Soft drop shadow on the cells.                                                         |
+| Shadow color / blur     | `shadowColor` / `shadowBlur` | `rgba(0,0,0,0.25)` / `4` | When drop shadow on.                                                                   |
+| Hover highlight         | `hoverHighlight`             | `true`                   | Outline the hovered cell.                                                              |
+| Animate                 | `animate`                    | `true`                   | Fade/grow cells in on first render and data change.                                    |
+| Animation duration (ms) | `animationDuration`          | `800`                    |                                                                                        |
+| Animation easing        | `animationEasing`            | `Cubic out`              | Linear, Cubic out, Cubic in-out, Quad out, Exp out, Back out, Bounce out, Elastic out. |
+| Animation stagger (ms)  | `animationStagger`           | `6`                      | Per-cell diagonal cascade delay.                                                       |
 
 ### Cells
 
-| Property | `name` | Default | Description |
-|---|---|---|---|
-| Cell gap (px) | `cellPadding` | `2` | Gap between cells (0 = touching). |
-| Corner radius (px) | `cellCornerRadius` | `2` | Rounded cell corners. |
-| Border color | `cellStroke` | blank | Per-cell stroke; blank = none. |
-| Border width (px) | `cellStrokeWidth` | `0` | |
-| Aspect | `cellAspect` | `Fit` | **Fit** (stretch to size) or **Square** (force square cells; height derived). |
-| Missing-cell color | `nullCellColor` | `#f3f4f6` | Fill for (x,y) with no data. `transparent` leaves a gap. |
+| Property           | `name`             | Default   | Description                                                                   |
+| ------------------ | ------------------ | --------- | ----------------------------------------------------------------------------- |
+| Cell gap (px)      | `cellPadding`      | `2`       | Gap between cells (0 = touching).                                             |
+| Corner radius (px) | `cellCornerRadius` | `2`       | Rounded cell corners.                                                         |
+| Border color       | `cellStroke`       | blank     | Per-cell stroke; blank = none.                                                |
+| Border width (px)  | `cellStrokeWidth`  | `0`       |                                                                               |
+| Aspect             | `cellAspect`       | `Fit`     | **Fit** (stretch to size) or **Square** (force square cells; height derived). |
+| No-data color      | `noDataColor`      | `#f3f4f6` | Fill for (x,y) with no data. `transparent` leaves a gap.                      |
 
 ### Colors
 
-| Property | `name` | Default | Description |
-|---|---|---|---|
-| Scale type | `colorScaleType` | `Sequential` | **Sequential** (continuous ramp), **Diverging** (two-sided around a midpoint), **Quantize** (discrete buckets). |
-| Color scheme | `colorScheme` | `Blues` | Blues, Greens, Oranges, Reds, Purples, Viridis, Inferno, Magma, Cividis, YlOrRd, YlGnBu, RdYlGn, RdBu, Spectral. (Any scheme works with any scale type.) |
-| Reverse scheme | `reverseColors` | `false` | Flip the ramp. |
-| Value domain minimum | `colorMin` | auto | Fix the low end of the color domain. Blank = data min. |
-| Value domain maximum | `colorMax` | auto | Fix the high end. Blank = data max. |
-| Diverging midpoint | `divergingMidpoint` | auto | *Diverging only.* Value at the ramp center. Blank = data mean. |
-| Quantize steps | `quantizeSteps` | `5` | *Quantize only.* Number of discrete buckets. |
+| Property             | `name`              | Default      | Description                                                                                                                                              |
+| -------------------- | ------------------- | ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Scale type           | `colorScaleType`    | `Sequential` | **Sequential** (continuous ramp), **Diverging** (two-sided around a midpoint), **Quantize** (discrete buckets).                                          |
+| Color scheme         | `colorScheme`       | `Blues`      | Blues, Greens, Oranges, Reds, Purples, Viridis, Inferno, Magma, Cividis, YlOrRd, YlGnBu, RdYlGn, RdBu, Spectral. (Any scheme works with any scale type.) |
+| Reverse scheme       | `reverseColors`     | `false`      | Flip the ramp.                                                                                                                                           |
+| Value domain minimum | `colorMin`          | auto         | Fix the low end of the color domain. Blank = data min.                                                                                                   |
+| Value domain maximum | `colorMax`          | auto         | Fix the high end. Blank = data max.                                                                                                                      |
+| Diverging midpoint   | `divergingMidpoint` | auto         | _Diverging only._ Value at the ramp center. Blank = data mean.                                                                                           |
+| Quantize steps       | `quantizeSteps`     | `5`          | _Quantize only._ Number of discrete buckets.                                                                                                             |
 
 ### X-axis (columns)
 
-| Property | `name` | Default | Description |
-|---|---|---|---|
-| Column sort | `sortX` | `None` | None / Ascending / Descending (by label) / By value (column total). |
-| Title | `xAxisLabel` | blank | |
-| Position | `xAxisPosition` | `Bottom` | Bottom or Top column labels. |
-| Tick label rotation | `xTickRotation` | `0` | Degrees, e.g. -45. |
+| Property            | `name`          | Default  | Description                                                         |
+| ------------------- | --------------- | -------- | ------------------------------------------------------------------- |
+| Column sort         | `sortX`         | `None`   | None / Ascending / Descending (by label) / By value (column total). |
+| Title               | `xAxisLabel`    | blank    |                                                                     |
+| Position            | `xAxisPosition` | `Bottom` | Bottom or Top column labels.                                        |
+| Tick label rotation | `xTickRotation` | `0`      | Degrees, e.g. -45.                                                  |
 
 ### Y-axis (rows)
 
-| Property | `name` | Default | Description |
-|---|---|---|---|
-| Row sort | `sortY` | `None` | None / Ascending / Descending (by label) / By value (row total). |
-| Title | `yAxisLabel` | blank | |
+| Property | `name`       | Default | Description                                                      |
+| -------- | ------------ | ------- | ---------------------------------------------------------------- |
+| Row sort | `sortY`      | `None`  | None / Ascending / Descending (by label) / By value (row total). |
+| Title    | `yAxisLabel` | blank   |                                                                  |
 
 ### Axes (shared)
 
-| Property | `name` | Default |
-|---|---|---|
-| Line color | `axisColor` | `#6b7280` |
-| Text color | `axisTextColor` | `#6b7280` |
-| Font size | `axisFontSize` | `12` |
-| Font family | `axisFontFamily` | blank |
+| Property    | `name`           | Default   |
+| ----------- | ---------------- | --------- |
+| Line color  | `axisColor`      | `#6b7280` |
+| Text color  | `axisTextColor`  | `#6b7280` |
+| Font size   | `axisFontSize`   | `12`      |
+| Font family | `axisFontFamily` | blank     |
 
 ### Color legend
 
-| Property | `name` | Default | Description |
-|---|---|---|---|
-| Show legend | `showColorLegend` | `true` | Gradient color legend mapping color -> value. |
-| Position | `colorLegendPosition` | `Right` | Right (vertical bar) or Bottom (horizontal bar). |
-| Title | `colorLegendTitle` | blank | |
-| Tick format | `colorLegendFormat` | blank | D3 number format for legend ticks. |
+| Property    | `name`                | Default | Description                                      |
+| ----------- | --------------------- | ------- | ------------------------------------------------ |
+| Show legend | `showColorLegend`     | `true`  | Gradient color legend mapping color -> value.    |
+| Position    | `colorLegendPosition` | `Right` | Right (vertical bar) or Bottom (horizontal bar). |
+| Title       | `colorLegendTitle`    | blank   |                                                  |
+| Tick format | `colorLegendFormat`   | blank   | D3 number format for legend ticks.               |
 
 ### Labels
 
-| Property | `name` | Default | Description |
-|---|---|---|---|
-| Show cell values | `showCellLabels` | `false` | Draw the value inside each cell. |
-| Value format | `cellLabelFormat` | blank | D3 number format for in-cell labels. |
-| Font size | `cellLabelFontSize` | `11` | |
-| Color | `cellLabelColor` | blank | Blank = **auto black/white contrast** per cell vs its fill. |
-| Hide below cell size (px) | `cellLabelMinSize` | `18` | Hide labels when cells are smaller than this. |
+| Property                  | `name`              | Default | Description                                                 |
+| ------------------------- | ------------------- | ------- | ----------------------------------------------------------- |
+| Show cell values          | `showCellLabels`    | `false` | Draw the value inside each cell.                            |
+| Value format              | `cellLabelFormat`   | blank   | D3 number format for in-cell labels.                        |
+| Font size                 | `cellLabelFontSize` | `11`    |                                                             |
+| Color                     | `cellLabelColor`    | blank   | Blank = **auto black/white contrast** per cell vs its fill. |
+| Hide below cell size (px) | `cellLabelMinSize`  | `18`    | Hide labels when cells are smaller than this.               |
 
 ### Tooltip
 
-| Property | `name` | Default | Description |
-|---|---|---|---|
-| Show tooltip | `showTooltip` | `true` | |
-| Template | `tooltipTemplate` | `{swatch}<strong>{x} . {y}</strong>...` | Tokens: `{x}`, `{y}`, `{value}`, `{formattedValue}`, `{rowIndex}`, `{colIndex}`, `{swatch}`, `{color}`, plus any custom cell key. Interpolated values are HTML-escaped (except `{swatch}`). |
-| Follow cursor | `tooltipFollowCursor` | `true` | |
-| Background / Text color | `tooltipBackground` / `tooltipTextColor` | `rgba(17,24,39,0.92)` / `#ffffff` | |
-| Font size | `tooltipFontSize` | `12` | |
+| Property                | `name`                                   | Default                                 | Description                                                                                                                                                                                 |
+| ----------------------- | ---------------------------------------- | --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Show tooltip            | `showTooltip`                            | `true`                                  |                                                                                                                                                                                             |
+| Template                | `tooltipTemplate`                        | `{swatch}<strong>{x} . {y}</strong>...` | Tokens: `{x}`, `{y}`, `{value}`, `{formattedValue}`, `{rowIndex}`, `{colIndex}`, `{swatch}`, `{color}`, plus any custom cell key. Interpolated values are HTML-escaped (except `{swatch}`). |
+| Follow cursor           | `tooltipFollowCursor`                    | `true`                                  |                                                                                                                                                                                             |
+| Background / Text color | `tooltipBackground` / `tooltipTextColor` | `rgba(17,24,39,0.92)` / `#ffffff`       |                                                                                                                                                                                             |
+| Font size               | `tooltipFontSize`                        | `12`                                    |                                                                                                                                                                                             |
 
 ---
 
@@ -373,11 +388,11 @@ mimic the native Data Visualization layout.
 
 ## Events (actions)
 
-| Action | When | Payload |
-|---|---|---|
-| `CHART_CLICKED` | Click the chart (not a cell) | `cellCount`, `rowCount`, `colCount` |
-| `CELL_CLICKED` | Click a cell (drill-in) | `x`, `y`, `value`, `rowIndex`, `colIndex` |
-| `CELL_HOVERED` | Hover a cell | `x`, `y`, `value` |
+| Action          | When                         | Payload                                   |
+| --------------- | ---------------------------- | ----------------------------------------- |
+| `CHART_CLICKED` | Click the chart (not a cell) | `cellCount`, `rowCount`, `colCount`       |
+| `CELL_CLICKED`  | Click a cell (drill-in)      | `x`, `y`, `value`, `rowIndex`, `colIndex` |
+| `CELL_HOVERED`  | Hover a cell                 | `x`, `y`, `value`                         |
 
 In UI Builder, add an event handler on `CELL_CLICKED` to navigate, open a record,
 or set a page parameter using the clicked cell's `x`/`y`/`value`. `CELL_CLICKED`
@@ -390,7 +405,7 @@ calls `stopPropagation()` so it doesn't also fire `CHART_CLICKED`.
 `chart.js` imports only d3 submodules, so it can be bundled and run headless:
 
 ```bash
-node scripts/verify_chart.mjs --chart src/x-1295779-heatmap-chart-uic/chart.js
+node scripts/verify_chart.mjs --chart src/x-2114311-heatmap-chart-uic/chart.js
 ```
 
 The harness esbuild-bundles `chart.js` with real d3, runs `drawChart` in jsdom

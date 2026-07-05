@@ -31,10 +31,12 @@ import {
 	interpolateBlues, interpolateGreens, interpolateOranges, interpolateReds,
 	interpolatePurples, interpolateViridis, interpolateInferno, interpolateMagma,
 	interpolateCividis, interpolateYlOrRd, interpolateYlGnBu,
-	interpolateRdYlGn, interpolateRdBu, interpolateSpectral
+	interpolateRdYlGn, interpolateRdBu, interpolateSpectral,
+	interpolateGreys, interpolatePlasma, interpolateTurbo, interpolateWarm, interpolateCool
 } from 'd3-scale-chromatic';
 import { format } from 'd3-format';
 import { color as d3color } from 'd3-color';
+import { interpolateHcl } from 'd3-interpolate';
 import {
 	easeLinear, easeCubicOut, easeCubicInOut, easeQuadOut,
 	easeExpOut, easeBackOut, easeBounceOut, easeElasticOut
@@ -56,6 +58,26 @@ const INTERPOLATORS = {
 	RdYlGn: interpolateRdYlGn,
 	RdBu: interpolateRdBu,
 	spectral: interpolateSpectral
+};
+
+// Sequential interpolators selectable via the `valueColorScheme` property.
+const SEQ_SCHEMES = {
+	blues: interpolateBlues,
+	greens: interpolateGreens,
+	oranges: interpolateOranges,
+	purples: interpolatePurples,
+	reds: interpolateReds,
+	greys: interpolateGreys,
+	viridis: interpolateViridis,
+	magma: interpolateMagma,
+	inferno: interpolateInferno,
+	plasma: interpolatePlasma,
+	cividis: interpolateCividis,
+	turbo: interpolateTurbo,
+	warm: interpolateWarm,
+	cool: interpolateCool,
+	ylGnBu: interpolateYlGnBu,
+	ylOrRd: interpolateYlOrRd
 };
 
 // Easing curves selectable via the `animationEasing` property.
@@ -171,6 +193,10 @@ export function drawChart(container, props, dispatch) {
 	// ----- normalize look-and-feel props -----
 	const colorScaleType = ['sequential', 'diverging', 'quantize'].indexOf(props.colorScaleType) > -1 ? props.colorScaleType : 'sequential';
 	const colorScheme = INTERPOLATORS[props.colorScheme] ? props.colorScheme : 'blues';
+	const valueColorScheme = SEQ_SCHEMES[props.valueColorScheme] ? props.valueColorScheme : '';
+	const colorMode = props.colorMode === 'custom' ? 'custom' : 'scheme';
+	const customColorStart = d3color(props.customColorStart) ? props.customColorStart : '#ebedf0';
+	const customColorEnd = d3color(props.customColorEnd) ? props.customColorEnd : '#216e39';
 	const reverseColors = props.reverseColors === true;
 	const quantizeSteps = Math.max(2, Math.round(num(props.quantizeSteps, 5)));
 
@@ -179,7 +205,7 @@ export function drawChart(container, props, dispatch) {
 	const cellStroke = props.cellStroke || '';
 	const cellStrokeWidth = Math.max(0, num(props.cellStrokeWidth, 0));
 	const cellAspect = props.cellAspect === 'square' ? 'square' : 'fit';
-	const nullCellColor = props.nullCellColor || '#f3f4f6';
+	const noDataColor = props.noDataColor || '#f3f4f6';
 
 	const xAxisPosition = props.xAxisPosition === 'top' ? 'top' : 'bottom';
 	const xTickRotation = Math.max(-90, Math.min(90, num(props.xTickRotation, 0)));
@@ -197,9 +223,15 @@ export function drawChart(container, props, dispatch) {
 
 	const dropShadow = props.dropShadow === true;
 	const hoverHighlight = props.hoverHighlight !== false;
+	const hoverColor = props.hoverColor || '';
+	const hoverDimOthers = props.hoverDimOthers === true;
 	const showColorLegend = props.showColorLegend !== false;
 	const colorLegendPosition = props.colorLegendPosition === 'bottom' ? 'bottom' : 'right';
 	const colorLegendTitle = props.colorLegendTitle || '';
+	const colorLegendMargin = Math.max(0, num(props.colorLegendMargin, 8));
+	const colorLegendTitlePosition = ['top', 'bottom', 'left', 'right'].indexOf(props.colorLegendTitlePosition) > -1
+		? props.colorLegendTitlePosition
+		: 'top';
 	const showCellLabels = props.showCellLabels === true;
 	const cellLabelColor = props.cellLabelColor || '';
 
@@ -238,8 +270,12 @@ export function drawChart(container, props, dispatch) {
 	let domMax = isBlank(props.colorMax) ? dataMax : num(props.colorMax, dataMax);
 	if (domMax === domMin) domMax = domMin + 1; // avoid a zero-width domain (all-equal values)
 
-	// interpolator with optional reversal
-	const baseInterp = INTERPOLATORS[colorScheme];
+	// interpolator with optional reversal. A custom gradient interpolates in HCL
+	// between the two endpoint colors; otherwise valueColorScheme wins over the
+	// universal colorScheme when set, else the old scheme behavior exactly.
+	const baseInterp = colorMode === 'custom'
+		? interpolateHcl(customColorStart, customColorEnd)
+		: (valueColorScheme ? SEQ_SCHEMES[valueColorScheme] : INTERPOLATORS[colorScheme]);
 	const interp = reverseColors ? (t) => baseInterp(1 - t) : baseInterp;
 
 	// build the value -> color scale per scale type
@@ -257,7 +293,7 @@ export function drawChart(container, props, dispatch) {
 	} else {
 		colorScale = scaleSequential([domMin, domMax], interp);
 	}
-	const fillFor = (v) => (Number.isFinite(v) ? colorScale(v) : nullCellColor);
+	const fillFor = (v) => (Number.isFinite(v) ? colorScale(v) : noDataColor);
 
 	// ----- clear previous render -----
 	const root = select(container);
@@ -324,13 +360,12 @@ export function drawChart(container, props, dispatch) {
 	// reserve for the color legend
 	const legendThick = 14; // bar thickness
 	const legendTickRoom = axisFontSize + 8;
-	const legendGap = 16;
 	const legendTitleRoom = colorLegendTitle ? axisFontSize + 6 : 0;
 	if (showColorLegend) {
 		if (colorLegendPosition === 'right') {
-			margin.right += legendThick + legendTickRoom + legendGap + legendTitleRoom;
+			margin.right += colorLegendMargin + legendThick + legendTickRoom + legendTitleRoom;
 		} else {
-			margin.bottom += legendThick + legendTickRoom + legendGap + legendTitleRoom;
+			margin.bottom += colorLegendMargin + legendThick + legendTickRoom + legendTitleRoom;
 		}
 	}
 
@@ -426,7 +461,7 @@ export function drawChart(container, props, dispatch) {
 		.attr('height', Math.max(0, bh))
 		.attr('rx', cornerR)
 		.attr('ry', cornerR)
-		.attr('fill', (d) => (d.value === null ? nullCellColor : fillFor(d.value)))
+		.attr('fill', (d) => (d.value === null ? noDataColor : fillFor(d.value)))
 		.attr('stroke', cellStroke && cellStrokeWidth > 0 ? cellStroke : 'none')
 		.attr('stroke-width', cellStroke && cellStrokeWidth > 0 ? cellStrokeWidth : null)
 		.style('cursor', 'pointer');
@@ -464,7 +499,7 @@ export function drawChart(container, props, dispatch) {
 		return `<span class="hc-tt-swatch" style="background:${safe}"></span>`;
 	};
 	const renderTemplate = (d) => {
-		const fill = d.value === null ? nullCellColor : fillFor(d.value);
+		const fill = d.value === null ? noDataColor : fillFor(d.value);
 		const ctx = Object.assign({}, d.raw || {}, {
 			x: d.x, y: d.y,
 			value: d.value === null ? '' : d.value,
@@ -517,6 +552,8 @@ export function drawChart(container, props, dispatch) {
 					.attr('stroke', d.value === null ? axisColor : contrastColor(fillFor(d.value)))
 					.style('opacity', 1);
 			}
+			if (hoverHighlight && hoverColor) select(this).attr('fill', hoverColor);
+			if (hoverDimOthers) { cellSel.style('opacity', 0.3); select(this).style('opacity', 1); }
 			if (tooltipEl) {
 				tooltipEl.html(renderTemplate(d)).style('display', 'block').style('opacity', 1);
 				placeTooltip(event.clientX, event.clientY, x(d.x) + bw / 2, y(d.y));
@@ -526,8 +563,10 @@ export function drawChart(container, props, dispatch) {
 		.on('mousemove', function (event, d) {
 			if (tooltipEl) placeTooltip(event.clientX, event.clientY, x(d.x) + bw / 2, y(d.y));
 		})
-		.on('mouseleave', function () {
+		.on('mouseleave', function (event, d) {
 			if (hoverRect) hoverRect.style('opacity', 0);
+			if (hoverHighlight && hoverColor) select(this).attr('fill', d.value === null ? noDataColor : fillFor(d.value));
+			if (hoverDimOthers) cellSel.style('opacity', 1);
 			if (tooltipEl) tooltipEl.style('opacity', 0).style('display', 'none');
 		})
 		.on('click', function (event, d) {
@@ -568,8 +607,10 @@ export function drawChart(container, props, dispatch) {
 		const valueAt = (t) => domMin + t * (domMax - domMin);
 
 		if (colorLegendPosition === 'right') {
+			// title on the left of the bar reserves a slot; otherwise it sits after the ticks
+			const titleLeft = colorLegendTitle && colorLegendTitlePosition === 'left';
 			const barH = Math.max(40, innerH * 0.8);
-			const barX = margin.left + innerW + legendGap;
+			const barX = margin.left + innerW + colorLegendMargin + (titleLeft ? legendTitleRoom : 0);
 			const barY = margin.top + (innerH - barH) / 2;
 			const grad = defs.append('linearGradient').attr('id', gradId)
 				.attr('x1', 0).attr('y1', 1).attr('x2', 0).attr('y2', 0); // top = high value
@@ -591,16 +632,22 @@ export function drawChart(container, props, dispatch) {
 			axis.select('.domain').remove();
 
 			if (colorLegendTitle) {
+				const titleX = titleLeft
+					? margin.left + innerW + colorLegendMargin
+					: barX + legendThick + legendTickRoom + axisFontSize;
 				legend.append('text')
-					.attr('transform', `translate(${barX + legendThick + legendTickRoom + axisFontSize},${barY + barH / 2}) rotate(-90)`)
+					.attr('transform', `translate(${titleX},${barY + barH / 2}) rotate(-90)`)
 					.attr('text-anchor', 'middle').attr('fill', axisTextColor)
 					.style('font-size', `${axisFontSize}px`).style('font-family', axisFontFamily)
 					.style('font-weight', '600').text(colorLegendTitle);
 			}
 		} else {
+			const titleBelow = colorLegendTitle && colorLegendTitlePosition === 'bottom';
 			const barW = Math.max(60, innerW * 0.6);
 			const barX = margin.left + (innerW - barW) / 2;
-			const barY = height - margin.bottom + legendGap - legendTickRoom; // sits inside the reserved bottom band
+			// anchor the legend group a clean margin below the grid
+			const groupTop = margin.top + innerH + colorLegendMargin;
+			const barY = groupTop + (colorLegendTitle && !titleBelow ? legendTitleRoom : 0);
 			const grad = defs.append('linearGradient').attr('id', gradId)
 				.attr('x1', 0).attr('y1', 0).attr('x2', 1).attr('y2', 0); // left = low value
 			for (let i = 0; i <= STOPS; i += 1) {
@@ -621,8 +668,11 @@ export function drawChart(container, props, dispatch) {
 			axis.select('.domain').remove();
 
 			if (colorLegendTitle) {
+				const titleY = titleBelow
+					? barY + legendThick + legendTickRoom + axisFontSize
+					: groupTop + axisFontSize;
 				legend.append('text')
-					.attr('x', barX + barW / 2).attr('y', barY - 5)
+					.attr('x', barX + barW / 2).attr('y', titleY)
 					.attr('text-anchor', 'middle').attr('fill', axisTextColor)
 					.style('font-size', `${axisFontSize}px`).style('font-family', axisFontFamily)
 					.style('font-weight', '600').text(colorLegendTitle);
